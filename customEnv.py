@@ -59,5 +59,5 @@ class ArcheryEnv(gym.Env):
     def render(self, mode='human', close=False):
         if self.viewer is None:
             self.viewer = Viewer()
-        if !(close):
+        if not (close):
             self.viewer.move(self.velocity, self.angle, self.final_y, self.wind)

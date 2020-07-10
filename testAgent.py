@@ -1,15 +1,20 @@
 # test agent
-
+import random
 import gym
-import archery_competition
-env = gym.make('ArcheryEnv') # call our env
-env.reset()
+from ArcheryEnv import ArcheryEnv
+
+y_height = random.uniform(0,10)
+distance = random.uniform(0,240)
+archery = ArcheryEnv(y_height, distance)
+archery.reset()
 
 for _ in range(1000):
-    env.render()
+    observation = archery.reset()
+    archery.render()
     # print observation
-    action = env.action_space.sample()
-    observation, reward, done, info = env.step(action)
-    
-env.close()
+    action = archery.action_space.sample()
+    observation, reward, done, info = archery.step((action[0], action[1]))
+    if done:
+        break
 
+archery.close()

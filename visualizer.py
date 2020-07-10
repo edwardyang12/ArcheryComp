@@ -37,7 +37,6 @@ class Viewer:
             vertical_dist = vertical_vel * self.time + vertical_dist
             vertical_vel = vertical_vel + self.gravity * self.time
             horizontal_vel = horizontal_vel + wind
-        print(vertical_dist, horizontal_dist)
         self.end_episode()
 
     # update turtle shape

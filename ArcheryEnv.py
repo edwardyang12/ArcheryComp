@@ -1,6 +1,9 @@
 import gym
 from gym import spaces
 import math
+import random
+import numpy as np
+from visualizer import Viewer
 
 time = 0.01
 gravity = -9.81
@@ -12,11 +15,12 @@ class ArcheryEnv(gym.Env):
 
     # velocity is the velocity of the arrow
     # angle is the initial angle of the arrow
-    # final_y is the height of the target
+    # target_y is the height of the target
     # viewer is the turtle simulation
-  def __init__(self, final_y):
-    super(CustomEnv, self).__init__()
-    self.final_y = final_y
+  def __init__(self, target_y, target_x):
+    super(ArcheryEnv, self).__init__()
+    self.target_x = target_x
+    self.target_y = target_y
     self.winnableRange = 5 # angle within 5 meters
     self.viewer = None
 
@@ -25,8 +29,8 @@ class ArcheryEnv(gym.Env):
     self.min_angle = 0
     self.max_speed = 70
     self.min_speed = 0
-    self.min_distance = 0
-    self.max_distance = 500 # arbitrary
+    self.min_target_x = 0
+    self.max_target_x = 500 # arbitrary
 
     self.winnableDist = 5
 
@@ -35,7 +39,6 @@ class ArcheryEnv(gym.Env):
     self.horizontal_dist =0
     self.vertical_dist =0
 
-    self.distance = random.uniform(0,240)
     self.wind_vel = random.uniform(-5,5)
 
     self.action_space = spaces.Box(
@@ -45,30 +48,31 @@ class ArcheryEnv(gym.Env):
     )
 
     self.observation_space = spaces.Box(
-        low = np.array([self.min_distance]),
-        high = np.array([self.max_distance]),
+        low = np.array([self.min_target_x]),
+        high = np.array([self.max_target_x]),
         dtype = np.float32
     )
 
   def step(self, action):
     # Execute one time step within the environment
     # their action: power and angle
-    power, angle = self.action
+    angle,velocity = action
 
     self.state = (angle)
 
-    finalLocation, vertical_dist = calcArrowLocation(velocity, angle, self.wind_vel)
+    finalLocation, vertical_dist = self.calcArrowLocation(velocity, angle, self.wind_vel)
     self.horizontal_dist = finalLocation
     self.vertical_dist = vertical_dist
 
     done = bool()
-    if (finalLocation - self.distance) <self.winnableDist:
+    if abs(finalLocation - self.target_x) <self.winnableDist:
         done = True
     # returns ( wind dir)
     # you chooose power and angle
+    self.wind = random.randint(-5, 5)
     return self._get_obs(), self._get_reward(), done, {}
 
-  def calcArrowLocation(velocity, angle, windDir):
+  def calcArrowLocation(self, velocity, angle, windDir):
     self.velocity = velocity
     self.angle = angle
 
@@ -78,7 +82,7 @@ class ArcheryEnv(gym.Env):
     horizontal_dist = 0
     vertical_dist = 0
 
-    while((vertical_dist>= self.final_y) or (vertical_vel>0)):
+    while((vertical_dist>= self.target_y) or (vertical_vel>0)):
         horizontal_dist = horizontal_vel * time + horizontal_dist
         vertical_dist = vertical_vel * time + vertical_dist
         vertical_vel = vertical_vel + gravity * time
@@ -87,7 +91,7 @@ class ArcheryEnv(gym.Env):
     return horizontal_dist, vertical_dist
 
   def _get_obs(self):
-    euclidean_distance = math.sqrt((self.distance - self.horizontal_dist)**2 + (self.final_y - self.vertical_dist)**2)
+    euclidean_target_x = math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)
 
     wind = 0
     if(self.wind_vel > 0):
@@ -95,20 +99,22 @@ class ArcheryEnv(gym.Env):
     else:
         wind = -1
 
-    return [self.velocity, self.angle, euclidean_distance, wind]
+    return [self.velocity, self.angle, euclidean_target_x, wind]
 
   def _get_reward(self):
-    return math.sqrt((self.distance - self.horizontal_dist)**2 + (self.final_y - self.vertical_dist)**2)
+    return math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)
 
   def reset(self):
     # Reset the state of the environment to an initial state
-    # where rewards are calculated
-    # more reward when it is closer to target via euclidean distance
-
+    self.target_x = random.uniform(5,235)
+    self.target_y = random.uniform(5, 235)
     return
 
   def render(self, mode='human', close=False):
     if self.viewer is None:
         self.viewer = Viewer()
-    if !(close):
-        self.viewer.move(self.velocity, self.angle, self.final_y)
+    if not (close):
+        self.viewer.move(self.velocity, self.target_y, self.angle, self.wind_vel)
+
+  def close(self):
+    return
