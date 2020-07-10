@@ -29,11 +29,22 @@ class ArcheryEnv(gym.Env):
 
   def step(self, action):
     # Execute one time step within the environment
-    angle = self.state
+    # their action: power and angle
+    power, angle = self.action
 
     self.state = (angle)
     done = bool()
+    finalLocation = calcAngleLocation(power, angle, windDir)
+    reward = euclideanDistance(finalLocation, targetLocation)
+
+    if reward <= self.winnableDist:
+      done = True
+    # returns ( wind dir) 
+    # you chooose power and angle 
     return np.array(self.state), reward, done, {}
+
+  def calcArrowLocation(power, angle, windDir):
+    return None
 
   def reset(self):
     # Reset the state of the environment to an initial state
