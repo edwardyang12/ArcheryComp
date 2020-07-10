@@ -17,6 +17,7 @@ class ArcheryEnv(gym.Env):
   def __init__(self, final_y):
     super(CustomEnv, self).__init__()
     self.final_y = final_y
+    self.winnableRange = 5 # angle within 5 meters
     self.viewer = None
 
     # used for spaces
