@@ -1,7 +1,7 @@
 import gym
 from gym import spaces
 import math
-
+import random
 time = 0.01
 gravity = -9.81
 
@@ -16,7 +16,8 @@ class ArcheryEnv(gym.Env):
     # viewer is the turtle simulation
   def __init__(self, final_y):
     super(CustomEnv, self).__init__()
-    self.final_y = final_y
+    self.target_x = target_x
+    self.target_y = target_y
     self.winnableRange = 5 # angle within 5 meters
     self.viewer = None
 
@@ -53,6 +54,7 @@ class ArcheryEnv(gym.Env):
   def step(self, action):
     # Execute one time step within the environment
     # their action: power and angle
+    
     power, angle = self.action
 
     self.state = (angle)
@@ -66,6 +68,7 @@ class ArcheryEnv(gym.Env):
         done = True
     # returns ( wind dir)
     # you chooose power and angle
+    self.wind = random.randint(-5, 5)
     return self._get_obs(), self._get_reward(), done, {}
 
   def calcArrowLocation(velocity, angle, windDir):
@@ -102,9 +105,8 @@ class ArcheryEnv(gym.Env):
 
   def reset(self):
     # Reset the state of the environment to an initial state
-    # where rewards are calculated
-    # more reward when it is closer to target via euclidean distance
-
+    self.target_x = random.uniform(5,235)
+    self.target_y = random.uniform(5, 235)
     return
 
   def render(self, mode='human', close=False):
