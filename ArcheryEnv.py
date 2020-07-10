@@ -16,7 +16,7 @@ class ArcheryEnv(gym.Env):
     # viewer is the turtle simulation
   def __init__(self, final_y):
     super(CustomEnv, self).__init__()
-    self.target_x = target_x
+    self.target_x = -1
     self.target_y = target_y
     self.winnableRange = 5 # angle within 5 meters
     self.viewer = None
