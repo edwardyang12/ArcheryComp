@@ -15,6 +15,7 @@ class ArcheryEnv(gym.Env):
     self.velocity = velocity
     self.angle = angle
     self.final_y = final_y
+    self.winnableRange = 5 # angle within 5 meters
     self.viewer = None
     # Define action and observation space
     # They must be gym.spaces objects
@@ -33,17 +34,18 @@ class ArcheryEnv(gym.Env):
     power, angle = self.action
 
     self.state = (angle)
-    done = bool()
-    finalLocation = calcAngleLocation(power, angle, windDir)
+    
+    finalLocation = calcAngleLocation(velocity, angle, windDir)
     reward = euclideanDistance(finalLocation, targetLocation)
-
+    
+    done = bool()
     if reward <= self.winnableDist:
       done = True
     # returns ( wind dir) 
     # you chooose power and angle 
     return np.array(self.state), reward, done, {}
 
-  def calcArrowLocation(power, angle, windDir):
+  def calcArrowLocation(velocity, angle, windDir):
     return None
 
   def reset(self):
