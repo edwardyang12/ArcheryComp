@@ -12,31 +12,31 @@ class ArcheryEnv(gym.Env):
     # final_y is the height of the target
     # viewer is the turtle simulation
     def __init__(self, final_y):
-    super(CustomEnv, self).__init__()
-    self.final_y = final_y
-    self.viewer = None
+        super(CustomEnv, self).__init__()
+        self.final_y = final_y
+        self.viewer = None
 
-    # used for spaces
-    self.max_angle = 90
-    self.min_angle = 0
-    self.max_speed = 70
-    self.min_speed = 0
-    self.min_distance = 0
-    self.max_distance = 500 # arbitrary
-    self.left_wind = -1
-    self.right_wind = 1
+        # used for spaces
+        self.max_angle = 90
+        self.min_angle = 0
+        self.max_speed = 70
+        self.min_speed = 0
+        self.min_distance = 0
+        self.max_distance = 500 # arbitrary
+        self.left_wind = -1
+        self.right_wind = 1
 
-    self.action_space = spaces.Box(
-        low = np.array([self.min_angle, self.min_speed]),
-        high = np.array([self.max_angle, self.max_speed]),
-        dtype = np.float32
-    )
+        self.action_space = spaces.Box(
+            low = np.array([self.min_angle, self.min_speed]),
+            high = np.array([self.max_angle, self.max_speed]),
+            dtype = np.float32
+        )
 
-    self.observation_space = spaces.Box(
-        low = np.array([self.min_angle, self.min_speed, self.min_distance, self.left_wind]),
-        high = np.array([self.max_angle, self.max_speed, self.max_distance, self.right_wind]),
-        dtype = np.float32
-    )
+        self.observation_space = spaces.Box(
+            low = np.array([self.min_distance]),
+            high = np.array([self.max_distance]),
+            dtype = np.float32
+        )
 
     # action should be [angle, velocity]
     def step(self, action):
