@@ -13,8 +13,8 @@ class Viewer:
     def __init__(self, horizontal_dist = -100, vertical_dist = 0, gravity = -9.81, time = 0.01):
         turtle.screensize(300, 300, 'white')
         self.screen = turtle.Screen()
-        self.screen.addshape("arrow1.gif")
-        self.screen.addshape("arrow2.gif")
+        self.screen.addshape("archery_env/envs/arrow1.gif")
+        self.screen.addshape("archery_env/envs/arrow2.gif")
         self.theTurtle = turtle.Turtle()
         self.theTurtle.penup()
         self.theTurtle.setpos(horizontal_dist,vertical_dist)
@@ -42,9 +42,9 @@ class Viewer:
     # update turtle shape
     def update_turtle_shape(self, vert_velocity):
         if(vert_velocity>0):
-            self.theTurtle.shape("arrow2.gif")
+            self.theTurtle.shape("archery_env/envs/arrow2.gif")
         else:
-            self.theTurtle.shape("arrow1.gif")
+            self.theTurtle.shape("archery_env/envs/arrow1.gif")
 
     # freeze turtle screen
     def freeze_screen(self):

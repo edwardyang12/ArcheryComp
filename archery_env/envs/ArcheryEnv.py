@@ -3,7 +3,7 @@ from gym import spaces
 import math
 import random
 import numpy as np
-from visualizer import Viewer
+from archery_env.envs.visualizer import Viewer
 
 time = 0.01
 gravity = -9.81
@@ -12,16 +12,14 @@ class ArcheryEnv(gym.Env):
   """Custom Environment that follows gym interface"""
   metadata = {'render.modes': ['human']}
 
-
     # velocity is the velocity of the arrow
     # angle is the initial angle of the arrow
     # target_y is the height of the target
     # viewer is the turtle simulation
-  def __init__(self, target_y, target_x):
+
+  def __init__(self):
     super(ArcheryEnv, self).__init__()
-    self.target_x = target_x
-    self.target_y = target_y
-    self.winnableRange = 5 # angle within 5 meters
+
     self.viewer = None
 
     # used for spaces
@@ -34,13 +32,6 @@ class ArcheryEnv(gym.Env):
 
     self.winnableDist = 5
 
-    self.velocity = 0
-    self.angle = 0
-    self.horizontal_dist =0
-    self.vertical_dist =0
-
-    self.wind_vel = random.uniform(-5,5)
-
     self.action_space = spaces.Box(
         low = np.array([self.min_angle, self.min_speed]),
         high = np.array([self.max_angle, self.max_speed]),
@@ -52,6 +43,7 @@ class ArcheryEnv(gym.Env):
         high = np.array([self.max_target_x]),
         dtype = np.float32
     )
+    self.reset()
 
   def step(self, action):
     # Execute one time step within the environment
@@ -65,7 +57,7 @@ class ArcheryEnv(gym.Env):
     self.vertical_dist = vertical_dist
 
     done = bool()
-    if abs(finalLocation - self.target_x) <self.winnableDist:
+    if abs(finalLocation - self.target_x) < self.winnableDist:
         done = True
     # returns ( wind dir)
     # you chooose power and angle
@@ -108,13 +100,16 @@ class ArcheryEnv(gym.Env):
     # Reset the state of the environment to an initial state
     self.target_x = random.uniform(5,235)
     self.target_y = random.uniform(5, 235)
-    return
+    self.velocity = 0
+    self.angle = 0
+    self.horizontal_dist =0
+    self.vertical_dist =0
+    self.wind_vel = random.uniform(-5,5)
+
 
   def render(self, mode='human', close=False):
-    if self.viewer is None:
-        self.viewer = Viewer()
-    if not (close):
-        self.viewer.move(self.velocity, self.target_y, self.angle, self.wind_vel)
-
-  def close(self):
-    return
+    if not close:
+        if self.viewer is None:
+            self.viewer = Viewer()
+        if not (close):
+            self.viewer.move(self.velocity, self.target_y, self.angle, self.wind_vel)
