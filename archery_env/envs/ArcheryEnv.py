@@ -23,14 +23,17 @@ class ArcheryEnv(gym.Env):
     self.viewer = None
 
     # used for spaces
-    self.max_angle = 90
-    self.min_angle = 0
-    self.max_speed = 70
-    self.min_speed = 0
-    self.min_target_x = 0
-    self.max_target_x = 500 # arbitrary
+    self.max_angle = 90.
+    self.min_angle = 0.
+    self.max_speed = 70.
+    self.min_speed = 0.
+    self.min_target_x = 0.
+    self.max_target_x = 600. # arbitrary
 
-    self.winnableDist = 5
+    self.T = 10.
+    self.runtime = 0.
+
+    self.winnableDist = 5.
 
     self.action_space = spaces.Box(
         low = np.array([self.min_angle, self.min_speed]),
@@ -39,13 +42,14 @@ class ArcheryEnv(gym.Env):
     )
 
     self.observation_space = spaces.Box(
-        low = np.array([self.min_target_x]),
-        high = np.array([self.max_target_x]),
+        low = np.array([self.min_target_x,-1.]),
+        high = np.array([self.max_target_x,1.]),
         dtype = np.float32
     )
     self.reset()
 
   def step(self, action):
+    done = False
     # Execute one time step within the environment
     # their action: power and angle
     angle,velocity = action
@@ -56,13 +60,21 @@ class ArcheryEnv(gym.Env):
     self.horizontal_dist = finalLocation
     self.vertical_dist = vertical_dist
 
-    done = bool()
     if abs(finalLocation - self.target_x) < self.winnableDist:
         done = True
     # returns ( wind dir)
     # you chooose power and angle
-    self.wind = random.randint(-5, 5)
-    return self._get_obs(), self._get_reward(), done, {}
+
+    obs = self._get_obs()
+    
+    self.wind_vel = random.randint(-5, 5)
+    
+    if self.runtime > self.T:
+      done = True
+      
+    self.runtime +=1
+    
+    return obs, self._get_reward(), done, {}
 
   def calcArrowLocation(self, velocity, angle, windDir):
     self.velocity = velocity
@@ -83,18 +95,18 @@ class ArcheryEnv(gym.Env):
     return horizontal_dist, vertical_dist
 
   def _get_obs(self):
-    euclidean_target_x = math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)
+    euclidean_target = math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)
 
     wind = 0
     if(self.wind_vel > 0):
-        wind = 1
+        wind = 1.
     else:
-        wind = -1
+        wind = -1.
 
-    return [self.velocity, self.angle, euclidean_target_x, wind]
+    return np.array([euclidean_target, wind])
 
   def _get_reward(self):
-    return math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)
+    return -math.sqrt((self.target_x - self.horizontal_dist)**2 + (self.target_y - self.vertical_dist)**2)/600
 
   def reset(self):
     # Reset the state of the environment to an initial state
@@ -105,11 +117,17 @@ class ArcheryEnv(gym.Env):
     self.horizontal_dist =0
     self.vertical_dist =0
     self.wind_vel = random.uniform(-5,5)
+    self.runtime = 0
+    self.close()
+    return self._get_obs()
 
-
+  def close(self):
+    if self.viewer:
+        self.viewer.clear()
+        self.viewer = None
+      
   def render(self, mode='human', close=False):
     if not close:
         if self.viewer is None:
             self.viewer = Viewer()
-        if not (close):
-            self.viewer.move(self.velocity, self.target_y, self.angle, self.wind_vel)
+        self.viewer.move(self.velocity, self.target_y, self.angle, self.wind_vel)

@@ -5,7 +5,6 @@ import archery_env
 
 env = gym.make('archerycomp-v1')
 
-
 for t in range(1000):
 
     env.reset()

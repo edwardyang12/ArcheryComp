@@ -1,13 +1,6 @@
 import gym
 import turtle
 import math
-# env = gym.make('Pendulum-v0')
-#
-# env.reset()
-# while(True):
-#     env.render()
-#     env.step(env.action_space.sample())
-# env.close()
 
 class Viewer:
     def __init__(self, horizontal_dist = -100, vertical_dist = 0, gravity = -9.81, time = 0.01):
@@ -56,6 +49,9 @@ class Viewer:
         self.theTurtle.setpos(self.initial)
         self.theTurtle.pendown()
         self.update_turtle_shape(1)
+
+    def clear(self):
+        turtle.clearscreen()
 
 if __name__ == '__main__':
     final_y = 30
